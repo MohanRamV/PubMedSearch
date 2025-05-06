@@ -1,0 +1,27 @@
+# LangGraph + LangChain core
+langgraph>=0.0.26
+langchain>=0.1.13
+
+# LLM integration (e.g., Gemini or OpenAI)
+google-generativeai==1.7.0
+#openai>=1.16.1  # Optional if using OpenAI fallback
+
+# PubMed API & XML parsing
+requests>=2.31.0
+xmltodict>=0.13.0
+lxml>=4.9.3
+
+# UMLS validation and caching
+python-dotenv>=1.0.1
+tqdm>=4.67.1
+
+# Data handling
+pandas>=2.2.2
+openpyxl>=3.1.2
+
+# Sentence Transformers (if needed for semantic relevance later)
+sentence-transformers>=2.2.2
+
+# Optional: for fuzzy matching titles
+fuzzywuzzy>=0.18.0
+python-Levenshtein>=0.20.9
