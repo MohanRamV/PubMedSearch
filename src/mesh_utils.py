@@ -2,7 +2,7 @@ import os
 import requests
 from dotenv import load_dotenv
 import json
-
+import streamlit as st
 CACHE_FILE = "cache/umls_cache.json"
 
 def load_cache():
@@ -24,7 +24,7 @@ def save_cache(cache):
 
 
 load_dotenv()
-UMLS_API_KEY = os.getenv("UMLS_API_KEY")
+UMLS_API_KEY = st.secrets["UMLS_API_KEY"]
 
 # Auth helpers
 def get_umls_tgt():

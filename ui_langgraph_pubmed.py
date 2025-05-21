@@ -5,11 +5,12 @@ from langgraph_pubmed import graph
 from src.run_embase_search import run_embase_search
 from src.user_feedback import compute_semantic_scores, prompt_semantic_reference
 import os
+
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"  # Avoid Intel OpenMP issues
 os.environ["STREAMLIT_WATCH_USE_POLLING"] = "true"  # Disable problematic file watching
 
 # ---- Init state variables
-for key in ["user_query", "excel_path", "final_state", "semantic_mode", "semantic_scores"]:
+for key in ["user_query", "excel_path", "final_state", "semantic_mode", "semantic_scores", "trigger_rerun"]:
     if key not in st.session_state:
         st.session_state[key] = None
 
@@ -26,7 +27,17 @@ st.markdown("""
 with st.form("search_form"):
     user_query = st.text_input("Enter your biomedical search query:")
     #excel_path = st.text_input("Excel file path with DOIs", "data/GLP-1 RA Abstracts Sorting file.xlsx")
-    excel_path = "data/GLP-1 RA Abstracts Sorting file.xlsx"
+    #excel_path = "data/GLP-1 RA Abstracts Sorting file.xlsx"
+    excel_path = st.file_uploader("Upload an Excel file with DOIs", type=["xlsx"])
+
+    if excel_path:
+        st.session_state.excel_path = excel_path
+    else:
+        excel_path = "data/GLP-1 RA Abstracts Sorting file.xlsx"
+        st.markdown("Taken Default Excel file: GLP-1 RA Abstracts Sorting file.xlsx")
+        st.session_state.excel_path = excel_path
+        
+
     submitted = st.form_submit_button("Run Search")
 
     if submitted:
@@ -42,6 +53,10 @@ with st.form("search_form"):
                 "excel_dois": excel_dois
             }
             st.session_state.final_state = graph.invoke(initial_state, config={"recursion_limit": 5})
+    # After rerun redirect, reset trigger flag
+    if st.session_state.trigger_rerun:
+        st.session_state.trigger_rerun = None
+
 
 # ---- Display Results
 if st.session_state.final_state:
@@ -90,10 +105,16 @@ if st.session_state.final_state:
         #st.info(f" Matched DOIs in Embase: {len(matched_embase_dois)} / {len(embase_dois)}")
 
         # ---- Feedback Options
-        choice = st.radio("What would you like to do next?", [" I'm satisfied", " Refine Query", " Get Semantic Scores"])
+        choice = st.radio("What would you like to do next?", [" Select what do you want next!", " Refine Query", " Get Semantic Scores"])
 
         if choice == " Refine Query":
-            st.text_input("Enter your refined query above and click 'Run Search' again.")
+            # Clear previous result and trigger rerun
+            st.session_state.final_state = None
+            st.session_state.semantic_mode = False
+            st.session_state.trigger_rerun = True
+            st.rerun()
+
+
         elif choice == " Get Semantic Scores":
             st.session_state.semantic_mode = True
 
@@ -102,13 +123,13 @@ if st.session_state.semantic_mode:
     st.markdown("""
         <div style='background: linear-gradient(to right, #654ea3, #eaafc8); 
                     padding: 15px; border-radius: 8px; text-align:center; color:white;'>
-            <h2>🧬 Semantic Similarity Matching</h2>
+            <h2> Semantic Similarity Matching</h2>
         </div>
         """, unsafe_allow_html=True)
 
 
-    st.markdown("<br><b style='color:#6c757d;'>🔍 Choose your reference for semantic comparison:</b>", unsafe_allow_html=True)
-    choice = st.radio("", ["Use original search query", "Enter new sentence"])
+    st.markdown("<br><b style='color:#6c757d;'> Choose your reference for semantic comparison:</b>", unsafe_allow_html=True)
+    choice = st.radio("", ["Use original search query", "Enter new sentence for semantic comparison"])
 
     if choice == "Use original search query":
         ref_text = st.session_state.user_query
@@ -130,7 +151,7 @@ if st.session_state.semantic_mode:
         st.markdown("""
         <div style='background: linear-gradient(to right, #d9f9d9, #bce0fd); 
                     padding: 10px; border-radius: 6px; color: #1d3557;'>
-            <h4>✅ Semantic Scores (Included in Excel)</h4>
+            <h4> Semantic Scores (Included in Excel)</h4>
         </div>
         """, unsafe_allow_html=True)
 

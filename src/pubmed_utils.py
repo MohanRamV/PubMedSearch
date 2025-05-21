@@ -4,9 +4,9 @@ import os
 import requests
 from dotenv import load_dotenv
 from xml.etree import ElementTree as ET
-
+import streamlit as st
 load_dotenv()
-NCBI_API_KEY = os.getenv("NCBI_API_KEY")
+NCBI_API_KEY = st.secrets["NCBI_API_KEY"]
 
 BASE_URL = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/"
 '''

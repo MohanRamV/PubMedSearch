@@ -3,7 +3,7 @@
 import os
 import re
 from dotenv import load_dotenv
-
+import streamlit as st
 from src.prompt_templates import CATEGORIZATION_PROMPT
 from src.utils import safe_parse_llm_response
 import json
@@ -12,7 +12,7 @@ from src.prompt_templates import EMBASE_QUERY_PROMPT
 
 # Load API keys from .env
 load_dotenv()
-GEMINI_API_KEY = os.getenv("GOOGLE_API_KEY")
+GEMINI_API_KEY = st.secrets["GOOGLE_API_KEY"]
 
 
 

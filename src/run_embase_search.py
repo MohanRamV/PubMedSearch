@@ -1,10 +1,10 @@
 import os
 import requests
 from dotenv import load_dotenv
-
+import streamlit as st
 load_dotenv()
-EMBASE_API_KEY = os.getenv("EMBASE_API_KEY")
-EMBASE_BASE_URL = os.getenv("EMBASE_BASE_URL", "https://api.elsevier.com/content/search/sciencedirect")  # Adjust if different
+EMBASE_API_KEY = st.secrets["EMBASE_API_KEY"]
+EMBASE_BASE_URL = st.secrets["EMBASE_BASE_URL"]  # Adjust if different
 
 HEADERS = {
     "Accept": "application/json",
