@@ -115,13 +115,22 @@ def run_pubmed_search(query: str, max_results: int = 500):
         for article in root.findall(".//PubmedArticle"):
             pmid = article.findtext(".//PMID")
             doi = None
+            abstract = ""
+            abstract_elems = article.findall(".//AbstractText")
+            if abstract_elems:
+                abstract = " ".join(elem.text.strip() for elem in abstract_elems if elem.text)
+
             for id_elem in article.findall(".//ArticleId"):
                 if id_elem.attrib.get("IdType") == "doi":
                     doi = id_elem.text
                     break
             if pmid:
-                print(f"📌 PMID {pmid} → DOI: {doi}")
-                doi_map[pmid] = doi
+                #print(f"📌 PMID {pmid} → DOI: {doi}")
+                doi_map[pmid] = {
+                    "doi": doi,
+                    "abstract": abstract
+                }
+            
 
     except Exception as e:
         raise RuntimeError(f"[run_pubmed_search → efetch] failed: {e}")
@@ -132,11 +141,14 @@ def run_pubmed_search(query: str, max_results: int = 500):
         for pmid in id_list:
             doc = summary_data.get("result", {}).get(pmid, {})
             title = doc.get("title", "No title found")
+            doi_info = doi_map.get(pmid, {})
             results.append({
                 "pmid": pmid,
                 "title": title,
-                "doi": doi_map.get(pmid, None) or "N/A"
+                "doi": doi_info.get("doi", "N/A"),
+                "abstract": doi_info.get("abstract", "")
             })
+
 
         return results
     except Exception as e:

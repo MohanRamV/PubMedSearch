@@ -1,4 +1,4 @@
-from src.llm_utils import categorize_user_query
+'''from src.llm_utils import categorize_user_query
 from src.mesh_utils import validate_mesh_terms_via_umls, generate_final_query
 from src.pubmed_utils import run_pubmed_search
 
@@ -15,3 +15,15 @@ def run_pipeline(user_query: str):
     print(f"🔎 PubMed Query: {pubmed_query}")
 
     return run_pubmed_search(pubmed_query)
+'''
+from src.llm_utils import categorize_user_query
+from src.pubmed_utils import run_pubmed_search
+
+def run_pipeline(user_query: str):
+    print(f"🔍 User Query: {user_query}")
+
+    pubmed_query = categorize_user_query(user_query)
+    print(f"🔎 PubMed Query: {pubmed_query}")
+
+    return run_pubmed_search(pubmed_query)
+

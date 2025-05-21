@@ -18,6 +18,7 @@ tqdm>=4.67.1
 # Data handling
 pandas>=2.2.2
 openpyxl>=3.1.2
+matplotlib>=3.7.1
 
 # Sentence Transformers (if needed for semantic relevance later)
 sentence-transformers>=2.2.2
@@ -25,3 +26,6 @@ sentence-transformers>=2.2.2
 # Optional: for fuzzy matching titles
 fuzzywuzzy>=0.18.0
 python-Levenshtein>=0.20.9
+
+# UI
+streamlit>=1.25.0

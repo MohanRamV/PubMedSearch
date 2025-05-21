@@ -1,64 +1,36 @@
-# src/prompt_templates.py
-
-# Prompt for query reformulation
-LLM_CLEAN_QUERY_PROMPT = """
-You are an expert biomedical researcher. Rephrase the following user query to be more structured
-and aligned with PubMed keyword or MeSH-based search strategy. Return only the rephrased query.
-
-Original Query:
-"{query}"
-"""
-
-# Prompt for keyword suggestions (if you expand later)
-LLM_KEYWORD_SUGGESTION_PROMPT = """
-Given the following medical research query, extract key biomedical terms (diseases, drugs, outcomes)
-and map them to PubMed-friendly keywords. Return them as a comma-separated list.
-
-Query:
-"{query}"
-"""
-
 CATEGORIZATION_PROMPT = """
-You are a biomedical NLP assistant helping to build PubMed search queries.
+You are a biomedical NLP assistant that helps users build accurate PubMed search queries.
 
-Given the following user query:
+Given the following user input:
 "{query}"
-First find if the user has already provided structured search terms or a search query. If they have, validate and correct typos and paranthesis only if required.
-Else If, extract structured search terms from the query. The user may have provided some terms in a free-text format, but they are not structured.
-Else, your task is to extract structured search terms in the following 3 categories:
-1. **Interventions or Drug Classes**
-   - Examples: drug names, mechanisms, receptor agonists
-   - Tags: [Mesh], [Majr], [Pharmacological Action], [Supplementary Concept]
 
-2. **Outcomes or Study Designs**
-   - Examples: trial phases, treatment outcomes, therapeutic use
-   - Tags: [Mesh], [Publication Type], or leave blank if none
+🔹 If the input is already a valid PubMed search query (e.g., contains "[Mesh]", "[Majr]", "[Publication Type]", or uses Boolean operators like AND/OR):
+- ✅ Do not modify the terms or categories.
+- ✅ Only correct any typos, extra spaces, or fix missing/unbalanced parentheses.
+- ✅ Return the corrected PubMed query directly as plain text.
 
-3. **Conditions or Disorders**
-   - Examples: psychiatric, cognitive, neurodevelopmental, or DSM-related terms
-   - Tags: [Mesh], [Majr]
+🔹 Otherwise, if the input is a natural language question or message:
+- 🔍 Extract relevant biomedical concepts and build a **structured PubMed query** using Boolean operators.
+- 📌 Organize the query into the following categories:
+   - Interventions (e.g., drugs, mechanisms)
+   - Outcomes (e.g., trial phase, treatment results)
+   - Conditions (e.g., disorders, diagnoses)
+- 📌 Use PubMed-compatible tags such as [Mesh], [Majr], [Publication Type], [Pharmacological Action], or [Supplementary Concept].
+- ❓ If you're unsure of a tag, leave it blank (e.g., `"term"`).
 
-Please return:
-- At least 2–3 items per category, even if inferred
-- Only valid PubMed search tags (avoid invented ones)
-- Exact matches for tags like:
-  - "Clinical Trial, Phase I" [Publication Type]
-  - "Treatment Outcome" [Mesh]
-  - "Mental Disorders" [Mesh]
-
-If you're unsure of a tag, leave it blank.
-
-Output format: Valid JSON only, no markdown or explanation. Use double quotes.
-
-Example format:
-{{
-  "interventions": [{{"term": "GLP-1 receptor agonists", "tag": "[Pharmacological Action]"}}],
-  "outcomes": [{{"term": "Treatment Outcome", "tag": "[Mesh]"}}, {{"term": "Clinical Trial, Phase II", "tag": "[Publication Type]"}}],
-  "conditions": [{{"term": "Mental Disorders", "tag": "[Mesh]"}}]
-}}
+⚠️ Return only the final PubMed query as plain text. No JSON, no markdown, no extra explanation. The output should be ready to use in the PubMed API or website.
 """
 
+EMBASE_QUERY_PROMPT = """
+You are a biomedical search assistant. Generate an Embase-compatible search query based on the user input.
 
+- Use Emtree terms if known (e.g., 'liraglutide'/exp, 'depression'/exp).
+- Combine terms with Boolean logic (AND/OR).
+- Group related terms in parentheses.
+- Use field labels like :ab,ti for abstract/title if applicable.
 
+User Input:
+"{query}"
 
-
+Return only the final Embase query as plain text. No explanation or formatting.
+"""

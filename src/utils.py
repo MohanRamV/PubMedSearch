@@ -3,16 +3,26 @@ import ast
 import re
 import pandas as pd
 
+
 def load_excel_dois(excel_path: str) -> set:
-    """
-    Loads DOIs from an Excel file and returns them as a cleaned lowercase set.
-    """
     try:
         df = pd.read_excel(excel_path, engine="openpyxl")
-        return set(str(doi).strip().lower() for doi in df['DOI'].dropna())
+        print("📋 Excel Columns:", list(df.columns))  # Debug
+
+        # Normalize column names
+        df.columns = df.columns.str.strip()
+
+        # Use exact column name with space
+        included_dois = df[
+            df["Included/ Excluded"].str.strip().str.lower() == "included"
+        ]["DOI"]
+
+        return set(str(doi).strip().lower() for doi in included_dois.dropna())
+
     except Exception as e:
-        print(f"❌ Failed to load DOIs from Excel: {e}")
+        print(f"❌ Failed to load included DOIs from Excel: {e}")
         return set()
+
 
 
 def safe_parse_llm_response(response_text: str) -> dict:
