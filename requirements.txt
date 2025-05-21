@@ -3,8 +3,8 @@ langgraph>=0.0.26
 langchain>=0.1.13
 
 # LLM integration (e.g., Gemini or OpenAI)
-google-generativeai==1.7.0
-#openai>=1.16.1  # Optional if using OpenAI fallback
+#google-generativeai==1.7.0
+google-generativeai
 
 # PubMed API & XML parsing
 requests>=2.31.0

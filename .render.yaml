@@ -1,0 +1,8 @@
+services:
+  - type: web
+    name: pubmed-search
+    env: python
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "streamlit run ui_langgraph_pubmed.py --server.port=$PORT"
+    plan: free
+    branch: ui-enhancement
